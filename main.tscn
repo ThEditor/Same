@@ -1,0 +1,93 @@
+[gd_scene load_steps=11 format=3 uid="uid://djhdcq5igahjb"]
+
+[ext_resource type="Texture2D" uid="uid://bwgf2hxwoc5s" path="res://textures/floor/old_wood_floor_diff_4k.png" id="1_o2ws2"]
+[ext_resource type="Texture2D" uid="uid://cqfcr1rwpgkjl" path="res://textures/floor/old_wood_floor_nor_gl_4k.png" id="2_emmn6"]
+[ext_resource type="Texture2D" uid="uid://bdcq1etyp04dr" path="res://textures/floor/old_wood_floor_rough_4k.png" id="3_1uwfi"]
+[ext_resource type="Script" path="res://scripts/player/movement.gd" id="4_6c15t"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8xaiu"]
+size = Vector3(60, 2, 60)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s7426"]
+albedo_texture = ExtResource("1_o2ws2")
+roughness_texture = ExtResource("3_1uwfi")
+normal_enabled = true
+normal_texture = ExtResource("2_emmn6")
+uv1_scale = Vector3(15, 15, 15)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lkokt"]
+material = SubResource("StandardMaterial3D_s7426")
+size = Vector3(60, 2, 60)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_67bwt"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_y1q8t"]
+
+[sub_resource type="GDScript" id="GDScript_oehe2"]
+script/source = "extends Camera3D
+
+# Mouse sensitivity for rotation
+@export var sensitivity = 0.3
+# Minimum and maximum vertical angles to avoid flipping the camera
+@export var min_vertical_angle = -90.0
+@export var max_vertical_angle = 90.0
+
+# Internal vertical rotation angle
+var vertical_angle = 0.0
+
+func _ready():
+	# Capture the mouse to lock it to the center of the screen
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+func _input(event):
+	# Handle mouse motion for camera rotation
+	if event is InputEventMouseMotion:
+		# Horizontal rotation (yaw)
+		$\"..\".rotate_y(deg_to_rad(-event.relative.x * sensitivity))
+
+		# Vertical rotation (pitch)
+		vertical_angle = clamp(
+			vertical_angle - event.relative.y * sensitivity,
+			min_vertical_angle,
+			max_vertical_angle
+		)
+		rotation_degrees.x = vertical_angle
+
+func _unhandled_input(event):
+	# Unlock the mouse if the Escape key is pressed
+	if Input.is_action_just_pressed(\"ui_cancel\"):
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+"
+
+[node name="main" type="Node"]
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_8xaiu")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_lkokt")
+
+[node name="Player" type="CharacterBody3D" parent="."]
+script = ExtResource("4_6c15t")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.19972, 0)
+shape = SubResource("CapsuleShape3D_67bwt")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.19972, 0)
+mesh = SubResource("CapsuleMesh_y1q8t")
+skeleton = NodePath("")
+
+[node name="Pivot" type="Node3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85126, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Player/Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0313509, 0)
+script = SubResource("GDScript_oehe2")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.99242, 0.0528635, 0.11094, -0.122891, 0.426904, 0.895908, 0, -0.90275, 0.430165, 0, 10.2718, 11.1601)
