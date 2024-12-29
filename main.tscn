@@ -1,12 +1,14 @@
-[gd_scene load_steps=11 format=3 uid="uid://djhdcq5igahjb"]
+[gd_scene load_steps=14 format=3 uid="uid://djhdcq5igahjb"]
 
 [ext_resource type="Texture2D" uid="uid://bwgf2hxwoc5s" path="res://textures/floor/old_wood_floor_diff_4k.png" id="1_o2ws2"]
 [ext_resource type="Texture2D" uid="uid://cqfcr1rwpgkjl" path="res://textures/floor/old_wood_floor_nor_gl_4k.png" id="2_emmn6"]
 [ext_resource type="Texture2D" uid="uid://bdcq1etyp04dr" path="res://textures/floor/old_wood_floor_rough_4k.png" id="3_1uwfi"]
 [ext_resource type="Script" path="res://scripts/player/movement.gd" id="4_6c15t"]
+[ext_resource type="PackedScene" uid="uid://bxcvx78j3eek7" path="res://assets/key/key.tscn" id="5_hhwnk"]
+[ext_resource type="Script" path="res://scripts/key/key.gd" id="5_q6koe"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8xaiu"]
-size = Vector3(60, 2, 60)
+size = Vector3(60, 0.1, 60)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s7426"]
 albedo_texture = ExtResource("1_o2ws2")
@@ -17,7 +19,7 @@ uv1_scale = Vector3(15, 15, 15)
 
 [sub_resource type="BoxMesh" id="BoxMesh_lkokt"]
 material = SubResource("StandardMaterial3D_s7426")
-size = Vector3(60, 2, 60)
+size = Vector3(60, 0.1, 60)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_67bwt"]
 
@@ -59,10 +61,13 @@ func _unhandled_input(event):
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 "
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_coskw"]
+size = Vector3(0.222107, 1.04565, 3.48318)
+
 [node name="main" type="Node"]
 
 [node name="Ground" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+transform = Transform3D(0.554974, 0, 0, 0, 1, 0, 0, 0, 0.554974, 0.00139332, -1, 0.0102303)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
 shape = SubResource("BoxShape3D_8xaiu")
@@ -89,5 +94,38 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85126, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0313509, 0)
 script = SubResource("GDScript_oehe2")
 
+[node name="SeeCast" type="RayCast3D" parent="Player/Pivot/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, -1.16297e-07, -0.920412, 0, 2.66057, -4.02325e-08, 0, 0, 0)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Player"]
+
+[node name="BoxContainer" type="BoxContainer" parent="Player/CanvasLayer"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="InteractText" type="Label" parent="Player/CanvasLayer/BoxContainer"]
+layout_mode = 2
+text = "Press 'E' to interact"
+
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.99242, 0.0528635, 0.11094, -0.122891, 0.426904, 0.895908, 0, -0.90275, 0.430165, 0, 10.2718, 11.1601)
+transform = Transform3D(0.99242, 0.0528635, 0.11094, -0.122891, 0.426904, 0.895908, 0, -0.90275, 0.430165, -6.72005, 9.32291, 7.03229)
+
+[node name="Key" type="RigidBody3D" parent="."]
+transform = Transform3D(0.764903, 0, 0, 0, 0.764903, 0, 0, 0, 0.764903, 0, 0, 4.14675)
+script = ExtResource("5_q6koe")
+
+[node name="Key" parent="Key" instance=ExtResource("5_hhwnk")]
+transform = Transform3D(0.0171142, 0, 0, 0, 0.0171142, 0, 0, 0, 0.0171142, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Key"]
+transform = Transform3D(0.324155, 0, 0, 0, 0.324155, 0, 0, 0, 0.324155, 0.00194881, -0.00739953, 0.00588083)
+shape = SubResource("BoxShape3D_coskw")

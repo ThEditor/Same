@@ -8,6 +8,7 @@ const JUMP_VELOCITY = 4.5
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 @onready var neck := $Pivot
 @onready var camera := $Pivot/Camera3D
+@onready var see := $Pivot/Camera3D/SeeCast
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -18,10 +19,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event is InputEventMouseMotion:
 			neck.rotate_y(-event.relative.x * 0.01)
 			camera.rotate_x(-event.relative.y * 0.01)
-			camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-30), deg_to_rad(60))
+			camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-40), deg_to_rad(60))
 
 
 func _physics_process(delta: float) -> void:
+	$CanvasLayer/BoxContainer/InteractText.hide()
+	if see.is_colliding():
+		var target = see.get_collider()
+		if (target != null and target.has_method("interact")):
+			$CanvasLayer/BoxContainer/InteractText.show()
+			if Input.is_action_just_pressed("interact"):
+				target.interact()
+	
 	# Add the gravity.
 	if not is_on_floor():
 		velocity.y -= gravity * delta
